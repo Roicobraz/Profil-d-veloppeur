@@ -5,13 +5,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -27,6 +30,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.profildeveloppeur.ui.theme.ProfilDéveloppeurTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Card
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.res.painterResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +61,7 @@ fun ProfilScreen(modifier: Modifier = Modifier) {
         role = "Architecte Logiciel",
         description = "Je suis apprenti architecte logiciel en alternance chez iQera Services.",
         skills = listOf("PHP", "JavaScript", "C", "Python"),
-        contact = "LinkedIn",
+        contact = "j.vavassori@myskolae.fr",
         isFriend = false,
         onFriendClick = {},
         modifier = modifier
@@ -71,25 +81,20 @@ fun ProfilCard(
     onFriendClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier
-            .clickable(
-                role = Role.Button,
-                onClick = onFriendClick
+    Card(modifier = modifier) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            ProfilCardContent(
+                name = name,
+                role = role,
+                description = description,
+                skills = skills,
+                contact = contact,
+                onFriendClick = {},
+                isFriend = isFriend
             )
-            .semantics {
-                contentDescription = "Ajouter $name en ami"
-            }
-    ) {
-        ProfilCardContent(
-            name = name,
-            role = role,
-            description = description,
-            skills = skills,
-            contact = contact,
-            onFriendClick = {},
-            isFriend = isFriend
-        )
+        }
     }
 }
 
@@ -110,11 +115,11 @@ fun ProfilCardContent(
         ProfilNameRole(
             name = name,
             role = role,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 4.dp)
         )
     }
     Column(
-        modifier = modifier.padding(top = 50.dp, start = 8.dp, end = 8.dp)
+        modifier = modifier.padding(start = 8.dp, end = 8.dp)
         ) {
         ProfilDescription(
             description = description,
@@ -125,10 +130,13 @@ fun ProfilCardContent(
             modifier = Modifier.padding(bottom = 8.dp),
             modifierElement = Modifier.padding(start = 12.dp)
         )
-        ProfilContact(
-            contact = contact,
-            modifier = Modifier.padding(bottom = 8.dp)
+        ProfilEmailField(
+            emailInformation = contact,
+            modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
         )
+
         FriendButton(
             isFriend = isFriend,
             onFriendClick = onFriendClick,
@@ -143,11 +151,37 @@ fun ProfilNameRole(
     role: String,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = "$name • $role",
+    Row(
+        modifier = modifier.padding(top = 10.dp, start = 8.dp, end = 8.dp)
+    ) {
+        ProfilImage(
+            profilTitle = name,
+            modifier = Modifier
+                .padding(bottom = 16.dp, end = 16.dp)
+        )
+        Text(
+            text = "$name • $role",
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+fun ProfilEmailField(
+    emailInformation: String,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = emailInformation,
+        onValueChange = {},
+        readOnly = true,
+        label = {
+            Text(text = "E-mail")
+        },
         modifier = modifier
     )
 }
+
 
 @Composable
 fun ProfilDescription(
@@ -202,13 +236,34 @@ fun FriendButton(
     ) {
         Text(
             text = if (isFriend) {
-                "✅ Ami"
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Note du produit"
+                )
+                " Ami"
             } else {
-                "+ Ajouter en ami"
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = "Note du produit"
+                )
+                " Ajouter en ami"
             }
         )
     }
 }
+
+@Composable
+fun ProfilImage(
+    profilTitle: String,
+    modifier: Modifier = Modifier
+) {
+    Image(
+        painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+        contentDescription = profilTitle,
+        modifier = modifier
+    )
+}
+
 
 
 /**
