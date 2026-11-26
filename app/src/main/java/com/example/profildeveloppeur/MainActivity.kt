@@ -8,10 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -109,15 +112,12 @@ fun ProfilCardContent(
     onFriendClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.padding(22.dp)
-    ) {
-        ProfilNameRole(
-            name = name,
-            role = role,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-    }
+    ProfilNameRole(
+        name = name,
+        role = role,
+        modifier = Modifier.padding(bottom = 4.dp)
+    )
+    Spacer(modifier = Modifier.height(8.dp))
     Column(
         modifier = modifier.padding(start = 8.dp, end = 8.dp)
         ) {
@@ -136,7 +136,6 @@ fun ProfilCardContent(
             .fillMaxWidth()
             .padding(top = 16.dp)
         )
-
         FriendButton(
             isFriend = isFriend,
             onFriendClick = onFriendClick,
@@ -157,7 +156,7 @@ fun ProfilNameRole(
         ProfilImage(
             profilTitle = name,
             modifier = Modifier
-                .padding(bottom = 16.dp, end = 16.dp)
+                .padding(end = 16.dp)
         )
         Text(
             text = "$name • $role",
@@ -257,14 +256,16 @@ fun ProfilImage(
     profilTitle: String,
     modifier: Modifier = Modifier
 ) {
-    Image(
-        painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-        contentDescription = profilTitle,
-        modifier = modifier
-    )
+    Box(
+        modifier = modifier.padding(0.dp)
+    ) {
+        Image(
+            painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+            contentDescription = profilTitle,
+            modifier = modifier
+        )
+    }
 }
-
-
 
 /**
  * Previews
