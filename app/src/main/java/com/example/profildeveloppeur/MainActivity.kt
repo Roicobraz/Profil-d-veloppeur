@@ -1,13 +1,11 @@
 package com.example.profildeveloppeur
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,24 +14,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.profildeveloppeur.ui.theme.ProfilDéveloppeurTheme
-import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
@@ -127,8 +120,7 @@ fun ProfilCardContent(
         )
         ProfilSkills(
             skills = skills,
-            modifier = Modifier.padding(bottom = 8.dp),
-            modifierElement = Modifier.padding(start = 12.dp)
+            modifier = Modifier.padding(bottom = 8.dp)
         )
         ProfilEmailField(
             emailInformation = contact,
@@ -196,18 +188,33 @@ fun ProfilDescription(
 @Composable
 fun ProfilSkills(
     skills: List<String>,
-    modifier: Modifier = Modifier,
-    modifierElement: Modifier = Modifier
+    modifier: Modifier = Modifier
 ) {
     Text(
         text = "Liste des compétences : ",
         modifier = modifier
     )
-    for (skill in skills)
-    {
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(skills) { category ->
+            SkillsItem(label = category)
+        }
+    }
+}
+
+@Composable
+fun SkillsItem(
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+    ) {
         Text(
-            text = "- $skill",
-            modifier = modifierElement
+            text = label,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
         )
     }
 }
