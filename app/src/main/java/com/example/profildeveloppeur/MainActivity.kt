@@ -211,10 +211,14 @@ fun SkillsItem(
 ) {
     Surface(
         modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.secondary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
     ) {
         Text(
             text = label,
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }
@@ -277,26 +281,24 @@ fun ProfilImage(
 /**
  * Previews
  */
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true,
+    name = "Profile - Light Theme"
+)
 @Composable
 fun ProfilScreenPreview() {
-    ProfilDéveloppeurTheme {
+    ProfilDéveloppeurTheme(darkTheme = false) {
         ProfilScreen()
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true,
+    name = "Profile - Dark Theme"
+)
 @Composable
 fun ProfilIsFriendScreenPreview() {
-    ProfilDéveloppeurTheme {
-        ProfilCard(
-            name = "Justin VAVASSORI",
-            role = "Architecte Logiciel",
-            description = "Je suis apprenti architecte logiciel en alternance chez iQera Services.",
-            skills = listOf("PHP", "JavaScript", "C", "Python"),
-            contact = "LinkedIn",
-            isFriend = true,
-            onFriendClick = {},
-        )
+    ProfilDéveloppeurTheme(darkTheme = true) {
+        ProfilScreen()
     }
 }
