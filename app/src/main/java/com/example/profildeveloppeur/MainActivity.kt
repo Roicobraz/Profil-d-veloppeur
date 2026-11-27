@@ -5,15 +5,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -31,8 +34,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlin.text.contains
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -224,17 +234,6 @@ fun SkillsItem(
 }
 
 @Composable
-fun ProfilContact(
-    contact: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = contact,
-        modifier = modifier
-    )
-}
-
-@Composable
 fun FriendButton(
     isFriend: Boolean,
     onFriendClick: () -> Unit,
@@ -278,6 +277,195 @@ fun ProfilImage(
     }
 }
 
+@Composable
+fun ProfilProject(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChange,
+                label = {
+                    Text(text = "Rechercher un projet")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+fun ProjectCatalogScreen(
+    projects: List<ProjectUi>,
+    techs: List<String>,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    showOnlyInStock: Boolean,
+    onToggleStockFilter: () -> Unit,
+    favoriteProjectIds: List<Int>,
+    onFavoriteClick: (Int) -> Unit,
+    onProjectClick: (ProjectUi) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChange,
+                label = {
+                    Text(text = "Rechercher un projet")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        item {
+            Button(
+                onClick = onToggleStockFilter
+            ) {
+                Text(
+                    text = if (showOnlyInStock) {
+                        "Afficher tous les projets"
+                    } else {
+                        "Afficher uniquement les projets favoris"
+                    }
+                )
+            }
+        }
+        item {
+            Text(
+                text = "Portfolio",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        item {
+            Text(
+                text = "Explorez les projets.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        item {
+            techsRow(techs = techs)
+        }
+        items(
+            items = projects,
+            key = { project -> project.id }
+        ) { project ->
+            ProjectListItem(
+                project = project,
+                isFavorite = favoriteProjectIds.contains(project.id),
+                onFavoriteClick = {
+                    onFavoriteClick(project.id)
+                },
+                onClick = {
+                    onProjectClick(project)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun techsRow(
+    techs: List<String>,
+    modifier: Modifier = Modifier
+) {
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(techs) { category ->
+            TechChip(label = category)
+        }
+    }
+}
+
+@Composable
+fun TechChip(
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.secondary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            style = MaterialTheme.typography.labelLarge
+        )
+    }
+}
+
+@Composable
+fun ProjectListItem(
+    project: ProjectUi,
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = project.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = project.tech,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = project.description,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = onFavoriteClick) {
+                Text(
+                    text = if (isFavorite) {
+                        "Retirer des favoris"
+                    } else {
+                        "Ajouter aux favoris"
+                    }
+                )
+            }
+        }
+    }
+}
+
+
 /**
  * Previews
  */
@@ -300,5 +488,120 @@ fun ProfilScreenPreview() {
 fun ProfilIsFriendScreenPreview() {
     ProfilDéveloppeurTheme(darkTheme = true) {
         ProfilScreen()
+        ProjectCatalogScreen(
+            projects = sampleProjects(),
+            techs = sampleTechs(),
+            searchQuery = "",
+            onSearchQueryChange = {},
+            showOnlyInStock = true,
+            onToggleStockFilter = {},
+            favoriteProjectIds = listOf(2),
+            onFavoriteClick = {},
+            onProjectClick = {}
+        )
     }
+}
+
+/**
+ * Datas
+ */
+data class ProjectUi(
+    val id: Int,
+    val title: String,
+    val tech: String,
+    val gitLink: String,
+    val description: String
+)
+
+class ProjectCatalogViewModel : ViewModel() {
+    private val allProjects: List<ProjectUi> = sampleProjects()
+    private val allTech: List<String> = sampleTechs()
+    private val _uiState = MutableStateFlow(
+        ProjectCatalogUiState(
+            projects = allProjects,
+            techs = allTech
+        )
+    )
+    val uiState: StateFlow<ProjectCatalogUiState> = _uiState.asStateFlow()
+    private fun filterProjects(searchQuery: String): List<ProjectUi> {
+        return allProjects.filter { project ->
+            val matchesSearch =
+                project.title.contains(searchQuery, ignoreCase = true) ||
+                        project.tech.contains(searchQuery, ignoreCase = true)
+            matchesSearch
+        }
+    }
+
+    fun onSearchQueryChange(newValue: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                searchQuery = newValue,
+                projects = filterProjects(
+                    searchQuery = newValue
+                )
+            )
+        }
+    }
+
+    fun onFavoriteClick(projectId: Int) {
+        _uiState.update { currentState ->
+            val newFavoriteIds =
+                if (currentState.favoriteProjectIds.contains(projectId)) {
+                    currentState.favoriteProjectIds - projectId
+                } else {
+                    currentState.favoriteProjectIds + projectId
+                }
+            currentState.copy(
+                favoriteProjectIds = newFavoriteIds
+            )
+        }
+    }
+}
+
+data class ProjectCatalogUiState(
+    val projects: List<ProjectUi> = emptyList(),
+    val techs: List<String> = emptyList(),
+    val searchQuery: String = "",
+    val favoriteProjectIds: List<Int> = emptyList()
+)
+
+fun sampleTechs(): List<String> {
+    return listOf("PHP", "JavaScript", "C", "Python")
+}
+
+fun sampleProject(): ProjectUi {
+    return ProjectUi(
+        id = 4,
+        title = "Projet C",
+        tech = "C",
+        gitLink = "https://github.com/Roicobraz/Profil-d-veloppeur/tree/cc3",
+        description = "test",
+    )
+}
+
+fun sampleProjects(): List<ProjectUi> {
+    return listOf(
+        ProjectUi(
+            id = 1,
+            title = "Projet PHP",
+            tech = "PHP",
+            gitLink = "https://github.com/Roicobraz/Profil-d-veloppeur/tree/cc3",
+            description = "test",
+        ),
+        ProjectUi(
+            id = 2,
+            title = "Projet JS",
+            tech = "JavaScript",
+            gitLink = "https://github.com/Roicobraz/Profil-d-veloppeur/tree/cc3",
+            description = "test",
+        ),
+        ProjectUi(
+            id = 3,
+            title = "Projet Python",
+            tech = "Python",
+            gitLink = "https://github.com/Roicobraz/Profil-d-veloppeur/tree/cc3",
+            description = "test",
+        ),
+        sampleProject()
+    )
 }
